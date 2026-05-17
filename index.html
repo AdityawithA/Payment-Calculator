@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Payment Calculator (INR)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a, #020617);
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-input:focus {
+            border-color: #a855f7;
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c084fc, #7c3aed);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+            transition: transform 0.1s;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c084fc, #7c3aed);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+            border: none;
+            transition: transform 0.1s;
+        }
+
+        .slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(168, 85, 247, 0.3);
+            border-radius: 9999px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 85, 247, 0.5);
+        }
+        
+        .tab {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .tab.active {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: #a855f7;
+            color: #e9d5ff;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex items-center justify-center text-slate-200">
+    <div class="glass-card max-w-6xl w-full mx-auto rounded-2xl overflow-hidden">
+        <!-- Header Banner -->
+        <div class="relative border-b border-white/5 bg-slate-900/40 p-6 md:p-8 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 pointer-events-none"></div>
+            <div class="relative flex flex-col sm:flex-row items-center gap-5 z-10">
+                <div class="p-3.5 bg-purple-500/10 border border-purple-500/20 rounded-xl shadow-inner">
+                    <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 15.75V18m-3-3V18m-3-3V18m3-2.25h.008v.008H13.5V15.75Zm0-2.25h.008v.008H13.5v-.008Zm0-2.25h.008v.008H13.5v-.008Zm0-2.25h.008v.008H13.5V6.75Zm-3 2.25h.008v.008H10.5V9Zm0 2.25h.008v.008H10.5v-.008Zm0 2.25h.008v.008H10.5v-.008Zm3-4.5h.008v.008H13.5V4.5Zm3 2.25h.008v.008H16.5V6.75Zm0 2.25h.008v.008H16.5V9a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75h-.008a.75.75 0 0 1-.75-.75V9Zm-9 6h.008v.008H7.5V15Zm0-2.25h.008v.008H7.5v-.008Zm0-2.25h.008v.008H7.5v-.008Zm0-2.25h.008v.008H7.5V6.75Zm6.75-4.5a.75.75 0 0 5-1.5 0v.008a.75.75 0 0 5 1.5 0V2.25Zm0 13.5a.75.75 0 0 1-.75-.75v-.008a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H14.25Zm3-3a.75.75 0 0 1-.75-.75v-.008a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H17.25Z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12c0 5.385 4.365 9.75 9.75 9.75s9.75-4.365 9.75-9.75S17.385 2.25 12 2.25 2.25 6.615 2.25 12Z"></path>
+                    </svg>
+                </div>
+                <div class="text-center sm:text-left">
+                    <h1 class="text-2xl font-bold tracking-tight text-white bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400">Payment Calculator (INR)</h1>
+                    <p class="text-sm text-slate-400 mt-1">Simulate EMIs, advanced balloon structural loans, and dynamic amortizations</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-6 md:p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Input Controls -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="space-y-5">
+                        <!-- Principal -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-sm font-medium text-slate-300">Principal Amount</label>
+                                <div class="relative max-w-[160px]">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₹</span>
+                                    <input type="number" id="principal" class="glass-input w-full pl-7 pr-3 py-1 text-right text-sm rounded-lg font-semibold" value="500000">
+                                </div>
+                            </div>
+                            <input type="range" id="principal-slider" class="slider mt-2" min="10000" max="5000000" step="10000" value="500000">
+                            <div class="flex justify-between text-[11px] text-slate-500 mt-1">
+                                <span>₹10,000</span>
+                                <span>₹50 Lakhs</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Interest Rate -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-sm font-medium text-slate-300">Interest Rate (% p.a.)</label>
+                                <div class="relative max-w-[100px]">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">%</span>
+                                    <input type="number" id="interest-rate" class="glass-input w-full pl-3 pr-7 py-1 text-right text-sm rounded-lg font-semibold" value="10" step="0.1" min="0.1" max="30">
+                                </div>
+                            </div>
+                            <input type="range" id="interest-rate-slider" class="slider mt-2" min="0.1" max="30" step="0.1" value="10">
+                            <div class="flex justify-between text-[11px] text-slate-500 mt-1">
+                                <span>0.1%</span>
+                                <span>30%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Loan Term -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Term Structure</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <input type="number" id="term" class="glass-input col-span-2 px-3 py-1.5 text-sm rounded-lg font-semibold" value="5" min="1" max="360">
+                                <select id="term-unit" class="glass-input px-2 py-1.5 text-sm rounded-lg font-medium bg-slate-900">
+                                    <option value="years">Years</option>
+                                    <option value="months">Months</option>
+                                </select>
+                            </div>
+                            <input type="range" id="term-slider" class="slider mt-3" min="1" max="30" step="1" value="5">
+                        </div>
+                        
+                        <!-- Payment Frequency -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Payment Interval</label>
+                            <select id="payment-frequency" class="glass-input w-full px-3 py-2 text-sm rounded-lg bg-slate-900">
+                                <option value="monthly" selected>Monthly (EMI)</option>
+                                <option value="quarterly">Quarterly</option>
+                                <option value="half-yearly">Half-Yearly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Payment Type -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Repayment Architecture</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="flex items-center justify-center p-2 rounded-lg border border-white/5 bg-slate-900/40 cursor-pointer select-none text-xs font-medium hover:bg-slate-800/50 transition">
+                                    <input type="radio" name="payment-type" value="regular" checked class="sr-only peer">
+                                    <span class="text-slate-400 peer-checked:text-purple-400">Standard EMI</span>
+                                </label>
+                                <label class="flex items-center justify-center p-2 rounded-lg border border-white/5 bg-slate-900/40 cursor-pointer select-none text-xs font-medium hover:bg-slate-800/50 transition">
+                                    <input type="radio" name="payment-type" value="balloon" class="sr-only peer">
+                                    <span class="text-slate-400 peer-checked:text-purple-400">Balloon Setup</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Balloon Amount Container -->
+                        <div id="balloon-amount-container" class="hidden animate-fadeIn">
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-sm font-medium text-purple-300">Terminal Balloon Payment</label>
+                                <div class="relative max-w-[140px]">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₹</span>
+                                    <input type="number" id="balloon-amount" class="glass-input w-full pl-7 pr-3 py-1 text-right text-sm rounded-lg font-semibold border-purple-500/30" value="0">
+                                </div>
+                            </div>
+                            <input type="range" id="balloon-amount-slider" class="slider mt-2" min="0" max="500000" step="10000" value="0">
+                            <div class="flex justify-between text-[11px] text-slate-500 mt-1">
+                                <span>₹0</span>
+                                <span id="max-balloon-label">₹5,00,000</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Metrics Display Cards -->
+                    <div class="space-y-3 pt-4 border-t border-white/5">
+                        <div class="bg-gradient-to-br from-purple-500/10 to-indigo-500/5 border border-purple-500/20 p-4 rounded-xl shadow-inner relative overflow-hidden">
+                            <h3 class="text-xs font-semibold uppercase tracking-wider text-purple-300">Periodic Payment</h3>
+                            <p id="payment-amount" class="text-3xl font-bold tracking-tight text-white mt-1">₹0.00</p>
+                            
+                            <div class="mt-4">
+                                <div class="h-1.5 w-full bg-slate-950/60 rounded-full overflow-hidden flex" id="payment-breakdown-bar">
+                                    <div class="h-full bg-gradient-to-r from-purple-500 to-purple-400 transition-all duration-300" id="principal-segment" style="width: 50%"></div>
+                                    <div class="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 transition-all duration-300" id="interest-segment" style="width: 50%"></div>
+                                </div>
+                                <div class="flex justify-between text-[11px] mt-2 text-slate-400 font-medium">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-2 h-2 bg-purple-500 rounded-full shadow-[0_0_6px_#a855f7]"></span>
+                                        <span>Principal: <strong id="principal-amount" class="text-slate-200">₹0</strong></span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-2 h-2 bg-indigo-500 rounded-full shadow-[0_0_6px_#6366f1]"></span>
+                                        <span>Interest: <strong id="interest-amount" class="text-slate-200">₹0</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-slate-900/40 border border-white/5 p-3 rounded-xl">
+                                <h3 class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Total Outflow</h3>
+                                <p id="total-payments" class="text-base font-bold text-slate-200 mt-0.5">₹0.00</p>
+                            </div>
+                            <div class="bg-slate-900/40 border border-white/5 p-3 rounded-xl">
+                                <h3 class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Total Interest</h3>
+                                <p id="total-interest" class="text-base font-bold text-indigo-300 mt-0.5">₹0.00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Output Amortization & Chart Canvas Layout -->
+                <div class="lg:col-span-2 flex flex-col h-full">
+                    <!-- Dynamic Tabs Menu Navigation Wrapper -->
+                    <div class="flex p-1 bg-slate-950/40 border border-white/5 rounded-xl mb-6 max-w-xs">
+                        <button class="tab active flex-1 py-2 text-xs font-semibold rounded-lg text-center" data-tab="schedule">Amortization Table</button>
+                        <button class="tab flex-1 py-2 text-xs font-semibold rounded-lg text-center" data-tab="chart">Analytics Chart</button>
+                    </div>
+                    
+                    <!-- Payment Schedule Data Node Layout Grid Layout Container -->
+                    <div id="schedule" class="tab-content flex-1 flex flex-col min-h-0">
+                        <div class="custom-scrollbar overflow-y-auto border border-white/5 rounded-xl bg-slate-950/20 max-h-[580px]">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900/80 border-b border-white/5 text-slate-300 text-xs font-semibold sticky top-0 backdrop-blur-md">
+                                        <th class="p-3.5 pl-4">Installment</th>
+                                        <th class="p-3.5 text-right">Payment</th>
+                                        <th class="p-3.5 text-right">Principal</th>
+                                        <th class="p-3.5 text-right">Interest</th>
+                                        <th class="p-3.5 text-right pr-4">Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payment-schedule-body" class="text-xs font-medium text-slate-400 divide-y divide-white/[0.02]">
+                                    <!-- Dynamic rows append injection inside DOM framework scope context execution block -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Chart Graphic Analysis Core Context Render Dom Frame Block -->
+                    <div id="chart" class="tab-content hidden flex-1">
+                        <div class="bg-slate-950/20 border border-white/5 p-4 rounded-xl h-full flex items-center justify-center min-h-[360px]">
+                            <canvas id="payment-chart" class="w-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // UI Tab Logic
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    tabContents.forEach(content => content.classList.add('hidden'));
+                    document.getElementById(tabId).classList.remove('hidden');
+                });
+            });
+
+            // Styling Synchronization Selector Registry Context Inputs
+            const principal = document.getElementById('principal');
+            const principalSlider = document.getElementById('principal-slider');
+            const interestRate = document.getElementById('interest-rate');
+            const interestRateSlider = document.getElementById('interest-rate-slider');
+            const term = document.getElementById('term');
+            const termUnit = document.getElementById('term-unit');
+            const termSlider = document.getElementById('term-slider');
+            const paymentFrequency = document.getElementById('payment-frequency');
+            const paymentTypeRadios = document.querySelectorAll('input[name="payment-type"]');
+            const balloonAmountContainer = document.getElementById('balloon-amount-container');
+            const balloonAmount = document.getElementById('balloon-amount');
+            const balloonAmountSlider = document.getElementById('balloon-amount-slider');
+            const maxBalloonLabel = document.getElementById('max-balloon-label');
+
+            function syncInputs(input, slider, callback) {
+                input.addEventListener('input', () => {
+                    slider.value = input.value;
+                    if(callback) callback();
+                    calculatePayment();
+                });
+                slider.addEventListener('input', () => {
+                    input.value = slider.value;
+                    if(callback) callback();
+                    calculatePayment();
+                });
+            }
+
+            syncInputs(principal, principalSlider, updateBalloonMaxAmount);
+            syncInputs(interestRate, interestRateSlider);
+
+            // Term Range Architecture Rules
+            function configureTermRanges() {
+                if (termUnit.value === 'years') {
+                    termSlider.min = 1;
+                    termSlider.max = 30;
+                    if (parseFloat(term.value) > 30) term.value = 30;
+                    termSlider.value = term.value;
+                } else {
+                    termSlider.min = 1;
+                    termSlider.max = 360;
+                    termSlider.value = term.value;
+                }
+            }
+
+            term.addEventListener('input', () => {
+                termSlider.value = term.value;
+                calculatePayment();
+            });
+            termSlider.addEventListener('input', () => {
+                term.value = termSlider.value;
+                calculatePayment();
+            });
+            termUnit.addEventListener('change', () => {
+                if(termUnit.value === 'years') {
+                    term.value = Math.min(Math.max(Math.round(term.value / 12), 1), 30);
+                } else {
+                    term.value = Math.min(term.value * 12, 360);
+                }
+                configureTermRanges();
+                calculatePayment();
+            });
+
+            // Dynamic Radio Framework Listeners
+            paymentTypeRadios.forEach(radio => {
+                radio.parentElement.addEventListener('click', () => {
+                    radio.checked = true;
+                    // Mock radio peer styling updates via active manual binding adjustments
+                    paymentTypeRadios.forEach(r => {
+                        if(r.checked) {
+                            r.nextElementSibling.classList.replace('text-slate-400', 'text-purple-400');
+                            r.parentElement.classList.add('border-purple-500/30', 'bg-purple-500/5');
+                        } else {
+                            r.nextElementSibling.classList.replace('text-purple-400', 'text-slate-400');
+                            r.parentElement.classList.remove('border-purple-500/30', 'bg-purple-500/5');
+                        }
+                    });
+
+                    if (radio.value === 'balloon') {
+                        balloonAmountContainer.classList.remove('hidden');
+                    } else {
+                        balloonAmountContainer.classList.add('hidden');
+                        balloonAmount.value = 0;
+                        balloonAmountSlider.value = 0;
+                    }
+                    calculatePayment();
+                });
+            });
+
+            syncInputs(balloonAmount, balloonAmountSlider);
+
+            function updateBalloonMaxAmount() {
+                const maxAmount = parseFloat(principal.value) || 0;
+                balloonAmountSlider.max = maxAmount;
+                if (parseFloat(balloonAmount.value) > maxAmount) {
+                    balloonAmount.value = maxAmount;
+                    balloonAmountSlider.value = maxAmount;
+                }
+                maxBalloonLabel.textContent = formatIndianCurrency(maxAmount);
+            }
+
+            paymentFrequency.addEventListener('change', calculatePayment);
+
+            let paymentChart;
+
+            function calculatePayment() {
+                const principalValue = parseFloat(principal.value) || 0;
+                const rateValue = (parseFloat(interestRate.value) || 0) / 100;
+                let termValue = parseFloat(term.value) || 1;
+                const balloonValue = parseFloat(balloonAmount.value) || 0;
+                const isBalloon = document.querySelector('input[name="payment-type"]:checked').value === 'balloon';
+
+                if (termUnit.value === 'months') {
+                    termValue = termValue / 12;
+                }
+
+                let paymentsPerYear = 12;
+                switch (paymentFrequency.value) {
+                    case 'quarterly': paymentsPerYear = 4; break;
+                    case 'half-yearly': paymentsPerYear = 2; break;
+                    case 'yearly': paymentsPerYear = 1; break;
+                }
+
+                const totalPaymentsCount = Math.max(Math.round(termValue * paymentsPerYear), 1);
+                const periodicRate = rateValue / paymentsPerYear;
+
+                let periodicPaymentAmount = 0;
+                if (periodicRate === 0) {
+                    periodicPaymentAmount = (principalValue - (isBalloon ? balloonValue : 0)) / totalPaymentsCount;
+                } else {
+                    const compoundFactor = Math.pow(1 + periodicRate, totalPaymentsCount);
+                    if (isBalloon) {
+                        periodicPaymentAmount = (principalValue * periodicRate * compoundFactor - balloonValue * periodicRate) / (compoundFactor - 1);
+                    } else {
+                        periodicPaymentAmount = (principalValue * periodicRate * compoundFactor) / (compoundFactor - 1);
+                    }
+                }
+
+                // Protect output displays from calculation anomalies
+                if (!isFinite(periodicPaymentAmount) || periodicPaymentAmount < 0) periodicPaymentAmount = 0;
+
+                generateScheduleAndMetrics(principalValue, periodicRate, totalPaymentsCount, periodicPaymentAmount, isBalloon ? balloonValue : 0);
+            }
+
+            function generateScheduleAndMetrics(principal, periodicRate, totalPayments, paymentAmount, balloonAmount) {
+                const tableBody = document.getElementById('payment-schedule-body');
+                tableBody.innerHTML = '';
+
+                let balance = principal;
+                let totalInterestPaid = 0;
+                let totalPrincipalPaid = 0;
+
+                const principalAccumulatedArray = [];
+                const interestAccumulatedArray = [];
+                const balanceTrackingArray = [principal];
+                const chartLabelArray = ['Start'];
+
+                // Month-by-month analysis loop pipeline integration block context
+                for (let i = 1; i <= totalPayments; i++) {
+                    const interestPayment = balance * periodicRate;
+                    let principalPayment = paymentAmount - interestPayment;
+
+                    if (i === totalPayments) {
+                        principalPayment = balance - balloonAmount;
+                    }
+
+                    if(principalPayment > balance) principalPayment = balance;
+
+                    totalPrincipalPaid += principalPayment;
+                    totalInterestPaid += interestPayment;
+                    balance -= principalPayment;
+
+                    if (balance < 0.01) balance = 0;
+
+                    // Compress data point processing mapping strategies to keep chart scales cleanly balanced
+                    if (i % Math.max(1, Math.floor(totalPayments / 12)) === 0 || i === totalPayments) {
+                        chartLabelArray.push(`P ${i}`);
+                        principalAccumulatedArray.push(totalPrincipalPaid);
+                        interestAccumulatedArray.push(totalInterestPaid);
+                        balanceTrackingArray.push(balance + (i === totalPayments ? balloonAmount : 0));
+                    }
+
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-white/[0.02] transition-colors";
+                    row.innerHTML = `
+                        <td class="p-3 pl-4 font-normal text-slate-300">#${i}</td>
+                        <td class="p-3 text-right text-slate-100">${formatIndianCurrency(principalPayment + interestPayment)}</td>
+                        <td class="p-3 text-right text-purple-400">${formatIndianCurrency(principalPayment)}</td>
+                        <td class="p-3 text-right text-indigo-400">${formatIndianCurrency(interestPayment)}</td>
+                        <td class="p-3 text-right pr-4 text-slate-300">${formatIndianCurrency(balance + (i === totalPayments ? balloonAmount : 0))}</td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+
+                if (balloonAmount > 0) {
+                    const balloonRow = document.createElement('tr');
+                    balloonRow.className = "bg-purple-500/10 border-t border-purple-500/20 font-semibold";
+                    balloonRow.innerHTML = `
+                        <td class="p-3 pl-4 text-purple-300">Terminal Balloon</td>
+                        <td class="p-3 text-right text-purple-200">${formatIndianCurrency(balloonAmount)}</td>
+                        <td class="p-3 text-right text-purple-300">${formatIndianCurrency(balloonAmount)}</td>
+                        <td class="p-3 text-right text-indigo-400">₹0.00</td>
+                        <td class="p-3 text-right pr-4 text-slate-400">₹0.00</td>
+                    `;
+                    tableBody.appendChild(balloonRow);
+                    
+                    chartLabelArray.push('End');
+                    principalAccumulatedArray.push(totalPrincipalPaid + balloonAmount);
+                    interestAccumulatedArray.push(totalInterestPaid);
+                    balanceTrackingArray.push(0);
+                }
+
+                // Absolute Global Compound Metrics Updates
+                const totalOutflowSum = principal + totalInterestPaid;
+                document.getElementById('payment-amount').textContent = formatIndianCurrency(paymentAmount);
+                document.getElementById('total-payments').textContent = formatIndianCurrency(totalOutflowSum);
+                document.getElementById('total-interest').textContent = formatIndianCurrency(totalInterestPaid);
+
+                // Update Progress metrics display structures cleanly
+                const firstMonthInterest = principal * periodicRate;
+                const firstMonthPrincipal = Math.max(paymentAmount - firstMonthInterest, 0);
+                document.getElementById('principal-amount').textContent = formatIndianCurrency(firstMonthPrincipal);
+                document.getElementById('interest-amount').textContent = formatIndianCurrency(firstMonthInterest);
+
+                const totalCalculatedSplit = firstMonthPrincipal + firstMonthInterest;
+                if(totalCalculatedSplit > 0) {
+                    document.getElementById('principal-segment').style.width = `${(firstMonthPrincipal / totalCalculatedSplit) * 100}%`;
+                    document.getElementById('interest-segment').style.width = `${(firstMonthInterest / totalCalculatedSplit) * 100}%`;
+                }
+
+                renderChartEngine(chartLabelArray, principalAccumulatedArray, interestAccumulatedArray, balanceTrackingArray);
+            }
+
+            function renderChartEngine(labels, principalData, interestData, balanceData) {
+                const ctx = document.getElementById('payment-chart').getContext('2d');
+                if (paymentChart) paymentChart.destroy();
+
+                paymentChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Remaining Balance',
+                                data: balanceData,
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.2,
+                                pointRadius: 0
+                            },
+                            {
+                                label: 'Cumulative Principal',
+                                data: principalData,
+                                borderColor: '#a855f7',
+                                backgroundColor: 'rgba(168, 85, 247, 0.05)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.2,
+                                pointRadius: 0
+                            },
+                            {
+                                label: 'Cumulative Interest',
+                                data: interestData,
+                                borderColor: '#6366f1',
+                                backgroundColor: 'rgba(99, 102, 241, 0.05)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.2,
+                                pointRadius: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b', font: { size: 10 } } },
+                            y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b', font: { size: 10 }, callback: v => '₹' + formatIndianNumber(v) } }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#94a3b8', boxWidth: 12, font: { size: 11, weight: '500' } } },
+                            tooltip: {
+                                backgroundColor: '#0f172a',
+                                titleColor: '#f8fafc',
+                                bodyColor: '#cbd5e1',
+                                borderColor: 'rgba(255,255,255,0.1)',
+                                borderWidth: 1,
+                                padding: 10,
+                                callbacks: { label: c => ` ${c.dataset.label}: ${formatIndianCurrency(c.raw)}` }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function formatIndianCurrency(value) {
+                return '₹' + formatIndianNumber(value.toFixed(2));
+            }
+
+            function formatIndianNumber(num) {
+                let parts = num.toString().split(".");
+                let lastThree = parts[0].substring(parts[0].length - 3);
+                let otherNumbers = parts[0].substring(0, parts[0].length - 3);
+                if (otherNumbers !== '') lastThree = ',' + lastThree;
+                let res = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
+                return parts.length > 1 ? res + "." + parts[1] : res;
+            }
+
+            // Initialization execution vectors
+            configureTermRanges();
+            updateBalloonMaxAmount();
+            calculatePayment();
+            
+            // Initial Active States Setup for standard styling
+            document.querySelector('input[name="payment-type"]:checked').parentElement.classList.add('border-purple-500/30', 'bg-purple-500/5');
+            document.querySelector('input[name="payment-type"]:checked').nextElementSibling.classList.replace('text-slate-400', 'text-purple-400');
+        });
+    </script>
+</body>
+</html>
